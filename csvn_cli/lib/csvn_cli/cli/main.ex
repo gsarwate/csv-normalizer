@@ -5,8 +5,9 @@ defmodule CsvnCli.CLI.Main do
     welcome_message()
     Shell.prompt("Press Enter to continue")
 
-    input = file_choice() |> Path.expand(".")
-    process(input, validate_input(input))
+    input_file = file_choice() |> Path.expand(".")
+
+    process(input_file, validate_input_file(input_file))
   end
 
   defp welcome_message() do
@@ -17,11 +18,19 @@ defmodule CsvnCli.CLI.Main do
   defp file_choice() do
     Shell.cmd("clear")
 
-    Shell.prompt("Choose CSV file to normalize:\n")
+    Shell.prompt("Choose CSV file to normalize:\n -->")
     |> String.trim()
+    |> validate_input()
   end
 
-  defp validate_input(file_name), do: File.exists?(file_name)
+  defp validate_input(_file_name = "") do
+    Shell.info("File name is required")
+    exit(:shutdown)
+  end
+
+  defp validate_input(filename), do: filename
+
+  defp validate_input_file(file_name), do: File.exists?(file_name)
 
   defp process(_, _file_exists = false) do
     Shell.error("File does not exist")
